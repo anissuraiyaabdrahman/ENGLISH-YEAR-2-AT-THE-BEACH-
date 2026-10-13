@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LET'S EXPLORE — At the Beach</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--pink:#f5a9c8;--pink-dark:#e875a6;--cream:#fff9f2;--ink:#58435b;--mint:#bcebd9;--yellow:#ffe59a}
+    *{box-sizing:border-box}
+    body{font-family:'Nunito',sans-serif;background:linear-gradient(145deg,#fff2f7 0%,#fff9f2 50%,#e9f8ff 100%);color:var(--ink);min-height:100vh}
+    h1,h2,h3,.display{font-family:'Baloo 2',cursive}
+    .soft-card{background:rgba(255,255,255,.91);border:3px solid #fff;box-shadow:0 12px 30px rgba(202,126,164,.16);border-radius:25px}
+    .cute-btn{border:0;border-radius:16px;padding:.8rem 1.15rem;font-weight:900;box-shadow:0 5px 0 rgba(127,72,101,.17);transition:all .3s ease;transform:translateY(0)}
+    .cute-btn:hover{transform:translateY(-3px);filter:saturate(1.08);box-shadow:0 8px 0 rgba(127,72,101,.13)}
+    .cute-btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(127,72,101,.12)}
+    .pink-btn{background:#f59fc2;color:#713d5a}.yellow-btn{background:#ffe08b;color:#765526}.mint-btn{background:#aee7d3;color:#285d53}.white-btn{background:#fff;color:#76536a;border:2px solid #f7d8e6}
+    .screen{display:none;animation:fadeIn .45s ease}.screen.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .beach-scene{position:relative;overflow:hidden;border:5px solid white;border-radius:24px;min-height:340px;background:linear-gradient(to bottom,#bfeaff 0%,#dff6ff 42%,#86dce9 43%,#74d8e8 55%,#ffe3a6 56%,#f9d48b 100%);isolation:isolate}
+    .sun{position:absolute;top:18px;right:8%;width:65px;height:65px;border-radius:50%;background:#ffe58e;box-shadow:0 0 0 12px rgba(255,229,142,.25)}
+    .cloud{position:absolute;color:white;font-size:44px;opacity:.9}
+    .wave{position:absolute;left:-5%;right:-5%;height:36px;top:45%;border-radius:50%;border-top:5px solid rgba(255,255,255,.6);transform:rotate(-2deg)}
+    .scene-item{position:absolute;display:flex;align-items:center;justify-content:center;border:2px dashed transparent;border-radius:18px;cursor:pointer;transition:all .25s ease;user-select:none;touch-action:manipulation}
+    .scene-item:hover{transform:scale(1.13) rotate(-4deg);background:rgba(255,255,255,.28);border-color:white;filter:drop-shadow(0 4px 2px #a67e7850)}
+    .scene-item.found{animation:pop .35s ease;opacity:.28;pointer-events:none;filter:grayscale(1)}
+    @keyframes pop{50%{transform:scale(1.35)}}
+    .item-emoji{font-size:clamp(2rem,5vw,3.6rem);filter:drop-shadow(0 4px 1px #8a6d6640)}
+    .target-chip{display:flex;align-items:center;gap:.55rem;background:#fff;border:2px solid #f7d9e7;border-radius:13px;padding:.55rem .7rem;font-weight:900;transition:all .2s}
+    .target-chip.done{background:#e0f8ed;border-color:#9bdfc5;color:#39856d;text-decoration:line-through;opacity:.75}
+    .target-chip.drag-over{border-color:#df75a6;background:#fff0f6}
+    .target-emoji{font-size:1.4rem}
+    .life{color:#f27da9;font-size:1.35rem;filter:drop-shadow(0 2px 0 #fff)}
+    .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(70,48,71,.45);backdrop-filter:blur(5px);z-index:50;align-items:center;justify-content:center;padding:1rem}
+    .modal-backdrop.show{display:flex;animation:fadeIn .2s ease}
+    .modal-card{width:min(100%,460px);max-height:85vh;overflow:auto;background:#fff9fc;border:4px solid white;border-radius:26px;box-shadow:0 20px 70px #633c5840;padding:1.5rem}
+    .toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:70;background:#624b66;color:white;padding:.8rem 1.2rem;border-radius:15px;font-weight:900;transition:all .3s}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    .progress-fill{height:100%;width:0;background:linear-gradient(90deg,#f69fc3,#ffd67c);border-radius:99px;transition:width .35s}
+    .floaty{animation:floaty 3s ease-in-out infinite}
+    @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @media(max-width:640px){.beach-scene{min-height:340px}.item-emoji{font-size:2.35rem}.scene-item{min-width:44px;min-height:44px}.soft-card{border-radius:20px}}
+  </style>
+</head>
+<body>
+  <header class="max-w-6xl mx-auto px-4 pt-5 pb-3 flex items-center justify-between gap-3">
+    <button class="flex items-center gap-2 text-left" onclick="goHome()" aria-label="Go to home">
+      <span class="w-12 h-12 rounded-2xl bg-white shadow flex items-center justify-center text-2xl">🐚</span>
+      <span><span class="block display font-extrabold text-2xl sm:text-3xl leading-none">LET'S <span class="text-pink-500">EXPLORE</span></span><span class="text-xs sm:text-sm font-extrabold tracking-widest text-purple-400">PLAY • LEARN • DISCOVER</span></span>
+    </button>
+    <div class="flex gap-2">
+      <button class="cute-btn white-btn !p-3" onclick="openModal('leaderboardModal')" title="Leaderboard" aria-label="Leaderboard"><i class="fas fa-trophy text-amber-400"></i><span class="hidden sm:inline ml-1">Scores</span></button>
+      <button class="cute-btn white-btn !p-3" onclick="toggleSound()" title="Toggle sound" aria-label="Toggle sound"><i id="soundIcon" class="fas fa-volume-high"></i></button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 pb-10">
+    <section id="startScreen" class="screen active">
+      <div class="grid lg:grid-cols-2 gap-6 items-center mt-3">
+        <div class="soft-card p-6 sm:p-9">
+          <div class="inline-flex items-center gap-2 bg-pink-100 text-pink-700 px-4 py-2 rounded-full text-sm font-black mb-4"><i class="fas fa-sun"></i> ENGLISH • YEAR 1–6</div>
+          <h1 class="display text-5xl sm:text-6xl font-extrabold leading-[.98] mb-4">At the <span class="text-pink-500">Beach!</span></h1>
+          <p class="text-lg sm:text-xl font-bold leading-relaxed mb-5">Ready for a sunny adventure? Find the hidden beach objects, learn new English words, and collect stars!</p>
+          <div class="grid grid-cols-3 gap-2 mb-6">
+            <div class="rounded-2xl bg-pink-50 p-3 text-center"><div class="text-2xl">❤️❤️❤️</div><div class="text-xs font-black mt-1">3 LIVES</div></div>
+            <div class="rounded-2xl bg-yellow-50 p-3 text-center"><div class="text-2xl">⏱️</div><div class="text-xs font-black mt-1">60 SECONDS</div></div>
+            <div class="rounded-2xl bg-green-50 p-3 text-center"><div class="text-2xl">⭐</div><div class="text-xs font-black mt-1">EARN POINTS</div></div>
+          </div>
+          <label for="playerName" class="block font-black mb-2">What's your name, explorer?</label>
+          <input id="playerName" maxlength="18" placeholder="Type your name here..." class="w-full rounded-2xl border-2 border-pink-100 focus:border-pink-400 outline-none px-4 py-3 text-lg font-bold mb-4 bg-white">
+          <button class="cute-btn pink-btn w-full text-lg sm:text-xl" onclick="startGame()"><i class="fas fa-play mr-2"></i> LET'S PLAY!</button>
+          <button class="cute-btn white-btn w-full mt-3" onclick="openModal('howModal')"><i class="fas fa-circle-question mr-2 text-pink-400"></i> How to play</button>
+        </div>
+        <div class="soft-card p-5 sm:p-8 bg-gradient-to-br from-pink-100 via-yellow-50 to-sky-100">
+          <div class="text-center">
+            <div class="text-8xl sm:text-9xl floaty mb-2">🏖️</div>
+            <h2 class="display text-3xl sm:text-4xl font-extrabold">Your beach adventure awaits!</h2>
+            <p class="font-bold mt-2 text-purple-500">Look closely... some objects are hiding!</p>
+          </div>
+          <div class="grid grid-cols-3 gap-3 mt-6 text-center">
+            <div class="bg-white/80 rounded-2xl p-3"><div class="text-3xl">🦀</div><p class="font-extrabold text-sm">Discover</p></div>
+            <div class="bg-white/80 rounded-2xl p-3"><div class="text-3xl">🪣</div><p class="font-extrabold text-sm">Collect</p></div>
+            <div class="bg-white/80 rounded-2xl p-3"><div class="text-3xl">🏆</div><p class="font-extrabold text-sm">Win</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen mt-3">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div><p class="text-sm font-black text-pink-500 uppercase tracking-widest">Mission 01</p><h2 class="display text-3xl sm:text-4xl font-extrabold">Find the beach objects!</h2></div>
+        <button class="cute-btn white-btn" onclick="openModal('pauseModal')"><i class="fas fa-pause mr-2"></i> Pause</button>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div class="soft-card p-3 flex items-center gap-3"><span class="text-2xl">⭐</span><div><p class="text-xs font-black text-purple-400">SCORE</p><p id="scoreText" class="text-xl font-black">0</p></div></div>
+        <div class="soft-card p-3 flex items-center gap-3"><span class="text-2xl">❤️</span><div><p class="text-xs font-black text-purple-400">LIVES</p><p id="livesText" class="text-xl font-black">❤️❤️❤️</p></div></div>
+        <div class="soft-card p-3 flex items-center gap-3"><span class="text-2xl">⏱️</span><div><p class="text-xs font-black text-purple-400">TIME LEFT</p><p id="timerText" class="text-xl font-black">60s</p></div></div>
+        <div class="soft-card p-3"><p class="text-xs font-black text-purple-400 mb-2">MISSION PROGRESS</p><div class="h-3 bg-pink-100 rounded-full overflow-hidden"><div id="progressFill" class="progress-fill"></div></div><p id="progressText" class="text-xs font-black mt-1">0 / 6 found</p></div>
+      </div>
+      <div class="grid lg:grid-cols-[1fr_270px] gap-4 items-start">
+        <div class="soft-card p-3 sm:p-4">
+          <div class="flex items-center justify-between gap-2 px-1 pb-3"><p class="font-black"><i class="fas fa-magnifying-glass text-pink-400 mr-2"></i>Tap an object to find it!</p><span class="text-xs font-black bg-yellow-100 px-3 py-1 rounded-full">+10 points each</span></div>
+          <div id="beachScene" class="beach-scene" aria-label="Interactive beach scene">
+            <div class="sun"></div><i class="fas fa-cloud cloud" style="top:10%;left:13%"></i><i class="fas fa-cloud cloud" style="top:19%;left:42%;font-size:30px"></i>
+            <div class="wave"></div>
+            <div class="absolute bottom-[19%] left-0 right-0 h-2 bg-white/25"></div>
+            <div class="absolute bottom-[3%] left-[3%] text-5xl sm:text-6xl">🌴</div>
+            <div class="absolute bottom-[7%] right-[4%] text-5xl sm:text-6xl">🌴</div>
+            <div class="absolute bottom-[11%] left-[34%] text-4xl opacity-90">🌊</div>
+            <div class="absolute bottom-[5%] left-[56%] text-3xl">🐚</div>
+            <div class="absolute bottom-[23%] left-[12%] text-3xl">🪸</div>
+            <div id="sceneObjects"></div>
+          </div>
+          <div class="mt-3 rounded-2xl bg-sky-50 p-3 flex items-center gap-3"><span class="text-2xl">💡</span><p id="hintText" class="font-bold text-sm sm:text-base">Hint: Look carefully at the sand and sea!</p><button class="cute-btn yellow-btn !p-2 !text-sm shrink-0" onclick="giveHint()">Hint (-2)</button></div>
+        </div>
+        <aside class="soft-card p-4">
+          <div class="flex items-center justify-between mb-3"><h3 class="display text-2xl font-extrabold">Your checklist</h3><i class="fas fa-clipboard-check text-pink-400 text-xl"></i></div>
+          <p class="text-sm font-bold mb-3">Find all 6 hidden objects. You can drag an object here too!</p>
+          <div id="targetList" class="space-y-2"></div>
+          <div class="mt-4 p-3 rounded-2xl bg-pink-50 text-sm font-bold"><i class="fas fa-hand-pointer text-pink-500 mr-1"></i> Drag & drop: drag a beach object onto its matching word.</div>
+          <button class="cute-btn white-btn w-full mt-4" onclick="openModal('leaderboardModal')"><i class="fas fa-trophy text-amber-400 mr-2"></i> Leaderboard</button>
+        </aside>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="screen mt-6">
+      <div class="soft-card max-w-2xl mx-auto p-7 sm:p-10 text-center">
+        <div id="resultEmoji" class="text-7xl sm:text-8xl mb-3">🏆</div>
+        <p class="text-sm font-black uppercase tracking-[.25em] text-pink-500">Adventure complete</p>
+        <h2 id="resultTitle" class="display text-4xl sm:text-5xl font-extrabold mt-2">Amazing Explorer!</h2>
+        <p id="resultMessage" class="text-lg font-bold mt-3">You did a great job!</p>
+        <div class="grid grid-cols-3 gap-3 my-7">
+          <div class="rounded-2xl bg-yellow-50 p-4"><p class="text-3xl">⭐</p><p class="text-xs font-black mt-1">YOUR SCORE</p><p id="finalScore" class="text-2xl font-black">0</p></div>
+          <div class="rounded-2xl bg-pink-50 p-4"><p class="text-3xl">🔎</p><p class="text-xs font-black mt-1">FOUND</p><p id="finalFound" class="text-2xl font-black">0/6</p></div>
+          <div class="rounded-2xl bg-green-50 p-4"><p class="text-3xl">⏱️</p><p class="text-xs font-black mt-1">TIME LEFT</p><p id="finalTime" class="text-2xl font-black">0s</p></div>
+        </div>
+        <div id="vocabReview" class="text-left bg-sky-50 rounded-2xl p-4 mb-6"><h3 class="display font-extrabold text-xl mb-2">Words we explored</h3><div id="vocabWords" class="flex flex-wrap gap-2"></div></div>
+        <button class="cute-btn pink-btn w-full sm:w-auto text-lg" onclick="startGame()"><i class="fas fa-rotate-right mr-2"></i> Play again</button>
+        <button class="cute-btn white-btn w-full sm:w-auto mt-3 sm:mt-0 sm:ml-2" onclick="goHome()"><i class="fas fa-house mr-2"></i> Home</button>
+        <button class="cute-btn yellow-btn w-full sm:w-auto mt-3 sm:mt-0 sm:ml-2" onclick="openModal('leaderboardModal')"><i class="fas fa-trophy mr-2"></i> Scores</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="text-center px-4 pb-6 text-sm font-bold text-purple-400">Made with <i class="fas fa-heart text-pink-400"></i> for curious young explorers</footer>
+
+  <div id="howModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="howTitle">
+    <div class="modal-card"><div class="flex justify-between items-center mb-3"><h2 id="howTitle" class="display text-3xl font-extrabold">How to play</h2><button class="text-2xl" onclick="closeModals()" aria-label="Close">×</button></div>
+      <ol class="space-y-3 font-bold"><li>🔍 Read the checklist and find each object in the beach picture.</li><li>👆 Tap an object, or drag it to the matching word.</li><li>❤️ You have 3 lives. Wrong taps cost one life.</li><li>⏱️ Find all 6 objects before time runs out.</li><li>⭐ Each correct object gives you 10 points. Use hints carefully!</li></ol>
+      <button class="cute-btn pink-btn w-full mt-5" onclick="closeModals()">Got it!</button>
+    </div>
+  </div>
+  <div id="leaderboardModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="leaderTitle">
+    <div class="modal-card"><div class="flex justify-between items-center mb-3"><h2 id="leaderTitle" class="display text-3xl font-extrabold"><i class="fas fa-trophy text-amber-400 mr-2"></i>Leaderboard</h2><button class="text-2xl" onclick="closeModals()" aria-label="Close">×</button></div>
+      <p class="text-sm font-bold mb-4">Top explorer scores on this device.</p><div id="leaderRows" class="space-y-2"></div>
+      <div class="flex gap-2 mt-5"><button class="cute-btn white-btn flex-1" onclick="clearLeaderboard()"><i class="fas fa-trash mr-1"></i> Clear scores</button><button class="cute-btn pink-btn flex-1" onclick="closeModals()">Close</button></div>
+    </div>
+  </div>
+  <div id="pauseModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+    <div class="modal-card text-center"><div class="text-5xl mb-2">⏸️</div><h2 id="pauseTitle" class="display text-3xl font-extrabold">Take a little break!</h2><p class="font-bold my-3">Your timer is paused. Ready to continue?</p><button class="cute-btn mint-btn w-full" onclick="resumeGame()"><i class="fas fa-play mr-2"></i> Continue playing</button><button class="cute-btn white-btn w-full mt-3" onclick="quitGame()">End game</button></div>
+  </div>
+  <div id="toast" class="toast">Great find!</div>
+
+<script>
+'use strict';
+// Game data: each object has a vocabulary word, emoji and a hidden position in the beach scene.
+const beachItems = [
+  {id:'ball', name:'Beach ball', emoji:'🏐', x:23, y:67, hint:'Look near the left side of the sandy beach!', word:'beach ball'},
+  {id:'bucket', name:'Bucket', emoji:'🪣', x:46, y:75, hint:'Look around the middle of the sand!', word:'bucket'},
+  {id:'crab', name:'Crab', emoji:'🦀', x:70, y:78, hint:'Look low down, near the right side!', word:'crab'},
+  {id:'sunglasses', name:'Sunglasses', emoji:'🕶️', x:82, y:57, hint:'Look where the sea meets the sand!', word:'sunglasses'},
+  {id:'starfish', name:'Starfish', emoji:'⭐', x:36, y:86, hint:'Look near the bottom of the beach!', word:'starfish'},
+  {id:'icecream', name:'Ice cream', emoji:'🍦', x:57, y:62, hint:'Look just above the sand, near the middle!', word:'ice cream'}
+];
+const state = {name:'Explorer', score:0, lives:3, time:60, found:new Set(), running:false, timer:null, sound:true, hints:0, ended:false};
+const $ = id => document.getElementById(id);
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+function playSound(type='good'){
+  if(!state.sound)return;
+  try{
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+    const ctx=new AudioCtx(), now=ctx.currentTime;
+    const notes=type==='good'?[660,880,1100]:type==='bad'?[220,180]:[523,659,784,1047];
+    notes.forEach((freq,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=freq;g.gain.setValueAtTime(.0001,now+i*.09);g.gain.exponentialRampToValueAtTime(.12,now+i*.09+.02);g.gain.exponentialRampToValueAtTime(.0001,now+i*.09+.17);o.connect(g);g.connect(ctx.destination);o.start(now+i*.09);o.stop(now+i*.09+.18);});
+    setTimeout(()=>ctx.close(),800);
+  }catch(e){/* Sound is optional; game still works if browser blocks audio. */}
+}
+function toggleSound(){state.sound=!state.sound;$('soundIcon').className=state.sound?'fas fa-volume-high':'fas fa-volume-xmark';if(state.sound)playSound('good');toast(state.sound?'Sound on 🔊':'Sound off 🔇');}
+function toast(message){const t=$('toast');t.textContent=message;t.classList.add('show');clearTimeout(toast._timer);toast._timer=setTimeout(()=>t.classList.remove('show'),1800);}
+function openModal(id){if(id==='leaderboardModal')renderLeaderboard();if(id==='pauseModal'&&state.running){state.running=false;clearInterval(state.timer);state.timer=null;}$(id).classList.add('show');}
+function closeModals(){document.querySelectorAll('.modal-backdrop').forEach(m=>m.classList.remove('show'));}
+function goHome(){stopTimer();closeModals();state.running=false;showScreen('startScreen');}
+function startGame(){
+  closeModals();stopTimer();state.name=$('playerName').value.trim()||'Explorer';state.score=0;state.lives=3;state.time=60;state.found=new Set();state.hints=0;state.running=true;state.ended=false;
+  showScreen('gameScreen');renderScene();renderTargets();updateHUD();$('hintText').textContent='Hint: Look carefully at the sand and sea!';
+  state.timer=setInterval(()=>{if(!state.running)return;state.time--;updateHUD();if(state.time<=0)finishGame(false,'Time is up! Try again and see if you can find them all.');},1000);
+}
+function stopTimer(){if(state.timer){clearInterval(state.timer);state.timer=null;}}
+function renderScene(){
+  const wrap=$('sceneObjects');wrap.innerHTML='';
+  // Shuffle the item positions slightly each round while preserving sensible spacing.
+  const shuffled=[...beachItems].sort(()=>Math.random()-.5);
+  shuffled.forEach(item=>{
+    const el=document.createElement('button');el.className='scene-item';el.type='button';el.id='scene-'+item.id;
+    el.style.left=`${item.x}%`;el.style.top=`${item.y}%`;el.style.transform='translate(-50%,-50%)';
+    el.setAttribute('aria-label','Hidden beach object');el.draggable=true;el.dataset.item=item.id;
+    el.innerHTML=`<span class="item-emoji" aria-hidden="true">${item.emoji}</span>`;
+    el.addEventListener('click',()=>findItem(item.id));
+    el.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',item.id);e.dataTransfer.effectAllowed='move';});
+    wrap.appendChild(el);
+  });
+}
+function renderTargets(){
+  const list=$('targetList');list.innerHTML='';
+  // All words are visible as a checklist, but the objects themselves are visually mixed into the scene.
+  beachItems.forEach(item=>{
+    const chip=document.createElement('div');chip.className='target-chip';chip.id='target-'+item.id;chip.dataset.item=item.id;chip.innerHTML=`<span class="target-emoji">${item.emoji}</span><span class="flex-1">${item.name}</span><i class="fas fa-circle-check text-green-400 opacity-0"></i>`;
+    chip.addEventListener('dragover',e=>{if(!state.found.has(item.id)){e.preventDefault();chip.classList.add('drag-over');}});
+    chip.addEventListener('dragleave',()=>chip.classList.remove('drag-over'));
+    chip.addEventListener('drop',e=>{e.preventDefault();chip.classList.remove('drag-over');const id=e.dataTransfer.getData('text/plain');if(id===item.id)findItem(id);else if(id)wrongFind();});
+    list.appendChild(chip);
+  });
+}
+function findItem(id){
+  if(!state.running||state.found.has(id)||state.ended)return;
+  const item=beachItems.find(x=>x.id===id);if(!item)return;
+  state.found.add(id);state.score+=10;playSound('good');
+  const scene=$('scene-'+id);if(scene){scene.classList.add('found');scene.setAttribute('aria-label',item.name+' found');scene.draggable=false;}
+  const target=$('target-'+id);if(target){target.classList.add('done');target.querySelector('i').classList.remove('opacity-0');}
+  $('hintText').textContent=`Great job! You found the ${item.name.toLowerCase()}! 🎉`;
+  toast(`Great find! ${item.name} +10 ⭐`);updateHUD();
+  if(state.found.size===beachItems.length)finishGame(true,'You found every object. You are a beach superstar!');
+}
+function wrongFind(){if(!state.running||state.ended)return;state.lives--;playSound('bad');$('hintText').textContent='Oops! That is not the right match. Try again!';toast('Not a match! One life lost 💗');updateHUD();if(state.lives<=0)finishGame(false,'Oh no! You ran out of lives. Give it another try!');}
+function giveHint(){
+  if(!state.running||state.ended)return;
+  const remaining=beachItems.filter(i=>!state.found.has(i.id));if(!remaining.length)return;
+  if(state.score<2){toast('You need at least 2 points for a hint!');return;}
+  const item=remaining[Math.floor(Math.random()*remaining.length)];state.score-=2;state.hints++;
+  $('hintText').textContent='Hint: '+item.hint;const el=$('scene-'+item.id);
+  if(el){el.animate([{filter:'drop-shadow(0 0 0 #ff75b5)'},{filter:'drop-shadow(0 0 13px #ff55a7)'},{filter:'drop-shadow(0 0 0 #ff75b5)'}],{duration:900,iterations:2});}
+  updateHUD();playSound('good');
+}
+function updateHUD(){
+  $('scoreText').textContent=state.score;$('livesText').textContent='❤️'.repeat(Math.max(0,state.lives))+'♡'.repeat(3-state.lives);
+  $('timerText').textContent=state.time+'s';$('timerText').classList.toggle('text-red-500',state.time<=10);
+  $('progressText').textContent=`${state.found.size} / ${beachItems.length} found`;$('progressFill').style.width=`${state.found.size/beachItems.length*100}%`;
+}
+function finishGame(won,message){
+  if(state.ended)return;state.ended=true;state.running=false;stopTimer();playSound(won?'win':'bad');
+  $('resultEmoji').textContent=won?'🏆':'🌈';$('resultTitle').textContent=won?'Amazing Explorer!':'Keep Exploring!';
+  $('resultMessage').textContent=message;$('finalScore').textContent=state.score;$('finalFound').textContent=`${state.found.size}/${beachItems.length}`;$('finalTime').textContent=state.time+'s';
+  $('vocabWords').innerHTML=beachItems.map(i=>`<span class="bg-white rounded-xl px-3 py-2 font-extrabold text-sm ${state.found.has(i.id)?'':'opacity-50'}">${i.emoji} ${i.name}</span>`).join('');
+  saveScore({name:state.name,score:state.score,found:state.found.size,time:state.time,date:new Date().toLocaleDateString()});showScreen('resultScreen');
+}
+function getScores(){try{return JSON.parse(localStorage.getItem('letsExploreLeaderboard')||'[]')}catch(e){return []}}
+function saveScore(entry){
+  try{const scores=getScores();scores.push(entry);scores.sort((a,b)=>b.score-a.score||b.found-a.found||b.time-a.time);localStorage.setItem('letsExploreLeaderboard',JSON.stringify(scores.slice(0,10)));}catch(e){toast('Could not save scores on this browser.');}
+}
+function renderLeaderboard(){
+  const scores=getScores(),rows=$('leaderRows');
+  if(!scores.length){rows.innerHTML='<div class="text-center p-6 rounded-2xl bg-pink-50 font-bold">No scores yet! Play a game to join the leaderboard. 🏖️</div>';return;}
+  rows.innerHTML=scores.map((s,i)=>`<div class="flex items-center gap-3 rounded-2xl p-3 ${i===0?'bg-yellow-100':'bg-white'} border border-pink-100"><span class="text-xl w-8 text-center">${['🥇','🥈','🥉'][i]||'⭐'}</span><div class="flex-1 min-w-0"><p class="font-black truncate">${escapeHTML(s.name)}</p><p class="text-xs font-bold text-purple-400">${s.found}/6 found • ${s.date||'Explorer'}</p></div><span class="font-black text-lg">${s.score} pts</span></div>`).join('');
+}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function clearLeaderboard(){if(confirm('Clear all saved scores on this device?')){localStorage.removeItem('letsExploreLeaderboard');renderLeaderboard();toast('Leaderboard cleared.');}}
+function resumeGame(){closeModals();state.running=true;state.timer=setInterval(()=>{if(!state.running)return;state.time--;updateHUD();if(state.time<=0)finishGame(false,'Time is up! Try again and see if you can find them all.');},1000);}
+function quitGame(){closeModals();finishGame(false,'You ended the adventure early. Want to try again?');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModals();});
+document.querySelectorAll('.modal-backdrop').forEach(m=>m.addEventListener('click',e=>{if(e.target===m){if(m.id==='pauseModal')resumeGame();else closeModals();}}));
+// Friendly welcome focus.
+$('playerName').addEventListener('keydown',e=>{if(e.key==='Enter')startGame();});
+</script>
+</body>
+</html>
